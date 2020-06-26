@@ -67,8 +67,24 @@ class MatchData:
         final_url = self.api + match_stats_endpoint + matchId
         params = {'api_key':self.api_key}
         curr_match_stats = requests.get(final_url, params=params).json() 
-
         return curr_match_stats
+
+    def getTotalGameStats(self, match_history):
+        """ Returns the total game stats for each match in match_history. 
+
+        :type match_history: List[dict] 
+        :rtype: List[dict]
+        """
+
+        total_game_stats = [] 
+
+
+        for match in match_history: 
+            matchId = str(match['gameId'])
+            curr_game_stats = self.getGameStats(matchId) 
+            total_game_stats.append(curr_game_stats) 
+
+        return total_game_stats 
 
     def getGameTimeline(self, matchId):
         """ Gets a game's timeline given a matchId; matchId to be passed into the URL 
@@ -85,6 +101,22 @@ class MatchData:
         curr_match_timeline = requests.get(final_url, params=params).json() 
 
         return curr_match_timeline 
+
+     def getTotalTimeline(self, match_history):
+        """ Returns a total timeline for each match played in match_history. 
+
+        :type match_history: List[dict] 
+        :rtype: List[dict] 
+        """
+
+        total_timeline = [] 
+
+        for match in match_history: 
+            matchId = str(match['gameId'])
+            curr_timeline = self.getGameTimeline(matchId) 
+            total_timeline.append(curr_timeline)
+            
+        return total_timeline 
 
 
     def cleanMatchHistory(self, match_history):
@@ -113,8 +145,6 @@ class MatchData:
                 cleaned_match_history.append(match) 
 
         return cleaned_match_history 
-
-    
 
     def blueWins(self, match_history):
         """
