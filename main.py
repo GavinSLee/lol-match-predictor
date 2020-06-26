@@ -263,7 +263,7 @@ class MatchData:
                     event = curr_events[j] 
                     # Checks that the event type is a ward placement 
                     # and the particiant is on the red team 
-                    if event["type"] == "ITEM_DESTROYED" and event["participantId"] < 6:
+                    if event["type"] == "WARD_KILL" and event["killerId"] < 6:
                         numDestroyed += 1
 
             blueWardsDestroyed.append(numDestroyed) 
@@ -297,7 +297,7 @@ class MatchData:
                     event = curr_events[j] 
                     # Checks that the event type is a ward placement 
                     # and the particiant is on the red team 
-                    if event["type"] == "ITEM_DESTROYED" and event["participantId"] > 5:
+                    if event["type"] == "WARD_KILL" and event["killerId"] > 5:
                         numDestroyed += 1
 
             redWardsDestroyed.append(numDestroyed) 
@@ -433,6 +433,146 @@ class MatchData:
         """
 
         return blueKills 
+
+    def blueAssists(self, match_history):
+        """
+        Counts the number of assists the blue team had gotten by the 15 minute mark. 
+
+        :type match_history: List[dict] 
+        :rtype: List[int]
+        """
+
+        blueAssists = [] 
+
+        for match in match_history:
+            numAssists = 0
+            matchId = str(match['gameId'])
+            curr_match_timeline = self.getGameTimeline(matchId)
+            frames = curr_match_timeline["frames"]
+
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(len(15)): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for j in range(len(curr_events)):
+                    # Indexing into curr_events gives a dict of an event 
+                    event = curr_events[j] 
+                    # Checks that the event type is a ward placement 
+                    # and the particiant is on the red team 
+                    if event["type"] == "CHAMPION_KILL" and event["killerId"] < 6:
+                        numAssists += len(event["assistingParticipantIds"])
+            blueAssists.append(numAssists)
+
+        return blueAssists
+
+    def blueAssists(self, match_history):
+        """
+        Counts the number of assists the red team had gotten by the 15 minute mark. 
+
+        :type match_history: List[dict] 
+        :rtype: List[int]
+        """
+
+        redAssists = [] 
+
+        for match in match_history:
+            numAssists = 0
+            matchId = str(match['gameId'])
+            curr_match_timeline = self.getGameTimeline(matchId)
+            frames = curr_match_timeline["frames"]
+
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(len(15)): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for j in range(len(curr_events)):
+                    # Indexing into curr_events gives a dict of an event 
+                    event = curr_events[j] 
+                    # Checks that the event is a champion kill 
+                    if event["type"] == "CHAMPION_KILL" and event["killerId"] > 5:
+                        # Gets a list of the people who assisted in the kill
+                        numAssists += len(event["assistingParticipantIds"])
+            redAssists.append(numAssists)
+
+        return redAssists
+
+
+    def eliteMonsterKillsBlue(self, match_history):
+        """
+        Determines the number of elite monsters the blue team has killed by the 15 minute mark. Elite monsters
+        are either dragons or heralds/baron. 
+
+        :type match_history: List[dict] 
+        :rtype: List[int]
+
+        """ 
+
+        blueEliteMonsters = [] 
+
+        for match in match_history:
+            numMonsters = 0
+            matchId = str(match['gameId'])
+            curr_match_timeline = self.getGameTimeline(matchId)
+            frames = curr_match_timeline["frames"]
+
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(len(15)): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for j in range(len(curr_events)):
+                    # Indexing into curr_events gives a dict of an event 
+                    event = curr_events[j] 
+                    # Checks that the event is an elite monster kill 
+                    if event["type"] == "ELITE_MONSTER_KILL" and event["killerId"] < 6:
+                        numMonsters += 1
+            blueEliteMonsters.append(numMonsters)
+
+        return blueEliteMonsters
+
+    def eliteMonsterKillsRed(self, match_history):
+        """
+        Determines the number of elite monsters the blue team has killed by the 15 minute mark. Elite monsters
+        are either dragons or heralds/baron. 
+
+        :type match_history: List[dict] 
+        :rtype: List[int]
+
+        """ 
+
+        redEliteMonsters = [] 
+
+        for match in match_history:
+            numMonsters = 0
+            matchId = str(match['gameId'])
+            curr_match_timeline = self.getGameTimeline(matchId)
+            frames = curr_match_timeline["frames"]
+
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(len(15)): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for j in range(len(curr_events)):
+                    # Indexing into curr_events gives a dict of an event 
+                    event = curr_events[j] 
+                    # Checks that the event is an elite monster kill 
+                    if event["type"] == "ELITE_MONSTER_KILL" and event["killerId"] > 5:
+                        
+                        numMonsters += 1
+            redEliteMonsters.append(numMonsters)
+
+        return redEliteMonsters
 
 
     def summonerOnBlueTeam(self, match_history):
