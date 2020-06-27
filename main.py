@@ -565,6 +565,399 @@ class MatchData:
 
         return redEliteMonsters
 
+    def blueDragonKills(self, total_game_timeline):
+        """ Determines how many dragons the blue team killed in the first 15 minutes 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+        blueDragonKills = [] 
+
+        for timeline in total_game_timeline:
+            numDragons = 0
+            frames = timeline["frames"]
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(16): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for event in curr_events:
+                    # Checks that the event is an elite monster kill
+                    if "monsterType" in event: 
+                        if event["monsterType"] == "DRAGON" and event["killerId"] < 6:
+                            numDragons += 1
+            blueDragonKills.append(numDragons) 
+
+        return blueDragonKills
+
+    def redDragonKills(self, total_game_timeline):
+        """ Determines how many dragons the red team killed in the first 15 minutes 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+        redDragonKills = [] 
+
+        for timeline in total_game_timeline:
+            numDragons = 0
+            frames = timeline["frames"]
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(16): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for event in curr_events:
+                    # Checks that the event is an elite monster kill 
+                    if "monsterType" in event:
+                        if event["monsterType"] == "DRAGON" and event["killerId"] > 5:
+                            numDragons += 1
+            redDragonKills.append(numDragons) 
+
+        return redDragonKills
+
+    def blueHeraldKills(self, total_game_timeline):
+        """ Determines how many Heralds the blue team has killed in the first 15 minutes 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+        blueHeraldKills = [] 
+
+        for timeline in total_game_timeline:
+            numHeralds = 0
+            frames = timeline["frames"]
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(16): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for event in curr_events:
+                    # Checks that the event is an elite monster kill 
+                    if "monsterType" in event:
+                        if event["monsterType"] == "RIFTHERALD" and event["killerId"] < 6:
+                            numHeralds += 1
+            blueHeraldKills.append(numHeralds)  
+
+        return blueHeraldKills
+
+
+
+    def redHeraldKills(self, total_game_timeline):
+        """ Determines how many Heralds the red team has killed in the first 15 minutes 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+        redHeraldKills = [] 
+
+        for timeline in total_game_timeline:
+            numHeralds = 0
+            frames = timeline["frames"]
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(16): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for event in curr_events:
+                    # Checks that the event is an elite monster kill 
+                    if "monsterType" in event:
+                        if event["monsterType"] == "RIFTHERALD" and event["killerId"] > 5:
+                            numHeralds += 1
+            redHeraldKills.append(numHeralds)  
+
+        return redHeraldKills
+
+
+    def blueTowerKills(self, total_game_timeline):
+        """
+        Counts how many towers the blue team has destroyed by the 15th minute mark for
+        each timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+
+        blueTowerKills = [] 
+
+        for timeline in total_game_timeline: 
+            numTowers = 0
+
+            frames = timeline["frames"]
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(16): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for event in curr_events:
+                    if event["type"] == "BUILDING_KILL" and event["killerId"] < 6:
+                        if event["buildingType"] == "TOWER_BUILDING":
+                            numTowers += 1
+            blueTowerKills.append(numTowers) 
+
+        return blueTowerKills  
+
+    def redTowerKills(self, total_game_timeline):
+        """
+        Counts how many towers the red team has destroyed by the 15th minute mark for each
+        timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+
+        redTowerKills = [] 
+
+        for timeline in total_game_timeline: 
+            numTowers = 0
+
+            frames = timeline["frames"]
+            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            for i in range(16): 
+                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+                curr_frame = frames[i] 
+
+                # Gives us an array of the events that took place during this ith minute 
+                curr_events = curr_frame["events"]
+
+                for event in curr_events:
+                    if event["type"] == "BUILDING_KILL" and event["killerId"] > 5:
+                        if event["buildingType"] == "TOWER_BUILDING":
+                            numTowers += 1
+            redTowerKills.append(numTowers) 
+
+        return redTowerKills 
+
+    def blueTotalGold(self, total_game_timeline):
+        """ Determines the total gold of the blue team at the 15th minute mark for each
+        timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+        blueTotalGold = [] 
+
+        for timeline in total_game_timeline:
+            totalGold = 0 
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(1, 6):
+                curr_player = curr_participants[str(i)]
+                totalGold += curr_player["totalGold"]
+
+            blueTotalGold.append(totalGold)
+
+        return blueTotalGold
+
+    def redTotalGold(self, total_game_timeline):
+        """ Determines the total gold of the red team at the 15th minute mark for each
+        timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+        redTotalGold = [] 
+
+        for timeline in total_game_timeline:
+            totalGold = 0 
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(6, 11):
+                curr_player = curr_participants[str(i)]
+                totalGold += curr_player["totalGold"]
+
+            redTotalGold.append(totalGold)
+
+        return redTotalGold
+
+    def blueAvgLvl(self, total_game_timeline):
+        """ 
+        Determines the average level of the blue team at the 15th minute mark for each timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+
+        blueAvgLvl = [] 
+
+        for timeline in total_game_timeline:
+            totalLvl = 0 
+
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(1, 6):
+                curr_player = curr_participants[str(i)]
+                totalLvl += curr_player["level"]
+            
+            avgLvl = totalLvl / 5
+
+            blueAvgLvl.append(avgLvl) 
+
+        return blueAvgLvl 
+
+    def redAvgLvl(self, total_game_timeline):
+        """ 
+        Determines the average level of the red team at the 15th minute mark for each timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+
+        redAvgLvl = [] 
+
+        for timeline in total_game_timeline:
+            totalLvl = 0 
+
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(6, 11):
+                curr_player = curr_participants[str(i)]
+                totalLvl += curr_player["level"]
+            
+            avgLvl = totalLvl / 5
+
+            redAvgLvl.append(avgLvl) 
+
+        return redAvgLvl 
+
+    def blueTotalExp(self, total_game_timeline):
+        """ Determines the total experience the blue team has at the 15th minute mark for each timeline in total_game_timeline. 
+
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+
+        blueTotalExp = [] 
+
+        for timeline in total_game_timeline:
+            totalExp = 0 
+
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(1, 6):
+                curr_player = curr_participants[str(i)]
+                totalExp += curr_player["xp"] 
+            
+            blueTotalExp.append(totalExp) 
+
+        return blueTotalExp
+
+    def redTotalExp(self, total_game_timeline):
+        """ Determines the total experience the red team has at the 15th minute mark for each timeline in total_game_timeline. 
+
+
+        :type total_game_timeline: List[dict]
+        :rtype: List[int]
+        """
+
+
+        redTotalExp = [] 
+
+        for timeline in total_game_timeline:
+            totalExp = 0 
+
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(6, 11):
+                curr_player = curr_participants[str(i)]
+                totalExp += curr_player["xp"] 
+            
+            redTotalExp.append(totalExp) 
+
+        return redTotalExp
+    
+    def blueTotalMinionsKilled(self, total_game_timeline):
+        """ Determines the total number of minions the blue team has killed at the 15th minute mark for each timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict] 
+        :rtype: List[int]
+        """
+
+
+        blueTotalMinionsKilled = [] 
+
+        for timeline in total_game_timeline:
+            totalMinions = 0
+
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(1, 6):
+                curr_player = curr_participants[str(i)]
+                totalMinions += curr_player["minionsKilled"] 
+            
+            blueTotalMinionsKilled.append(totalMinions)
+
+        return blueTotalMinionsKilled 
+
+
+    def redTotalMinionsKilled(self, total_game_timeline):
+        """ Determines the total number of minions the red team has killed at the 15th minute mark for each timeline in total_game_timeline. 
+
+        :type total_game_timeline: List[dict] 
+        :rtype: List[int]
+        """
+
+
+        redTotalMinionsKilled = [] 
+
+        for timeline in total_game_timeline:
+            totalMinions = 0
+
+            frames = timeline["frames"]
+
+            curr_frame = frames[15] 
+            curr_participants = curr_frame["participantFrames"]
+
+            for i in range(6, 11):
+                curr_player = curr_participants[str(i)]
+                totalMinions += curr_player["minionsKilled"] 
+            
+            redTotalMinionsKilled.append(totalMinions)
+
+        return redTotalMinionsKilled 
+
 
     def blueSummonerOnTeam(self, total_game_stats):
         """ Determines whether the summoner we're training the model for is on the blue team for each match in match history.
@@ -620,8 +1013,9 @@ if __name__ == "__main__":
     accountId = data.getAccountID(summoner_name) 
     match_history = data.getTotalMatchHistory(accountId)
     cleaned_match_history = data.cleanMatchHistory(match_history)
-    total_game_stats = data.getTotalGameStats(cleaned_match_history)
-    # total_game_timeline = data.getTotalGameTimeline(cleaned_match_history)
 
-    blueSummonerOnTeam = data.blueSummonerOnTeam(total_game_stats) 
-    print(blueSummonerOnTeam)     
+    total_game_stats = data.getTotalGameStats(cleaned_match_history)
+    total_game_timeline = data.getTotalGameTimeline(cleaned_match_history)
+
+    redTotalMinionsKilled = data.redTotalMinionsKilled(total_game_timeline) 
+    print(redTotalMinionsKilled)      
