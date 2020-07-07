@@ -76,7 +76,7 @@ class MatchData:
             print("Cleaning Match History!") 
             print("Counter: " + str(counter) + "\n")
             counter += 1
-            time.sleep(3) 
+            time.sleep(4) 
 
             if curr_game_mode != "CLASSIC":
                 continue 
@@ -214,7 +214,7 @@ class MatchData:
 
     def blueWardsPlaced(self, match_history_timelines):
         """
-        Counts the number of wards the blue team had placed down by the 15 minute mark for each match in the total game timeline. 
+        Counts the number of wards the blue team had placed down by the 15 minute mark for each timeline in match_history_timelines. 
 
 
         :type match_history_timelines: List[dict]
@@ -228,7 +228,7 @@ class MatchData:
 
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -247,7 +247,7 @@ class MatchData:
 
     def redWardsPlaced(self, match_history_timelines):
         """
-        Counts the number of wards the red team had placed down by the 15 minute mark for each match in match history. 
+        Counts the number of wards the red team had placed down by the 15 minute mark for each timeline in match_history_timelines. 
 
 
         :type match_history: List[dict]
@@ -261,7 +261,7 @@ class MatchData:
 
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -280,7 +280,7 @@ class MatchData:
     
     def blueWardKills(self, match_history_timelines):
         """
-        Counts the number of wards the blue team had destroyed by the 15 minute mark for each match in match_history_timelines. 
+        Counts the number of wards the blue team had destroyed by the 15 minute mark for each timeline in match_history_timelines. 
 
         :type match_history_timelines: List[dict]
         :rtype: List[int] 
@@ -292,7 +292,7 @@ class MatchData:
             numDestroyed = 0
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -300,7 +300,7 @@ class MatchData:
                 curr_events = curr_frame["events"]
 
                 for event in curr_events: 
-                    # Checks that the event type is a ward placement 
+                    # Checks that the event type is a ward kill  
                     # and the particiant is on the blue team 
                     if event["type"] == "WARD_KILL" and event["killerId"] < 6:
                         if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
@@ -324,7 +324,7 @@ class MatchData:
             
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -332,7 +332,7 @@ class MatchData:
                 curr_events = curr_frame["events"]
 
                 for event in curr_events:
-                    # Checks that the event type is a ward placement 
+                    # Checks that the event type is a ward kill 
                     # and the particiant is on the red team 
                     if event["type"] == "WARD_KILL" and event["killerId"] > 5:
                         if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
@@ -363,21 +363,23 @@ class MatchData:
         return blueFirstBlood
 
     
-    def redFirstBlood(self, blueFirstBlood):
+    def redFirstBlood(self, match_history_stats):
         """
-        Determines whether the red team secured First Blood in each match (if blue team does not get first blood, then red team gets first flood and vice versa).
+        Determines whether the red team secured First Blood in each match in match_history_stats.  
 
-        :type blueFirstBlood: List[int]
+        :type match_history_stats: List[dict]
         :rtype: List[int]
         """
 
         redFirstBlood = [] 
 
-        for i in range(len(blueFirstBlood)):
-            if blueFirstBlood[i] == 1:
-                redFirstBlood.append(0) 
-            else:
+        for match in match_history_stats:
+            teams = match["teams"]
+            red_team = teams[1] # Returns a dict of the blue team's basic stats
+            if red_team["firstBlood"] == True:
                 redFirstBlood.append(1) 
+            else:
+                redFirstBlood.append(0) 
 
         return redFirstBlood 
 
@@ -395,7 +397,7 @@ class MatchData:
             numKills = 0
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -425,7 +427,7 @@ class MatchData:
             numKills = 0
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -454,7 +456,7 @@ class MatchData:
 
     def redDeaths(self, blueKills):
         """
-        Counts the numbr of deaths the red team had gotten by the 15 minute mark. 
+        Counts the number of deaths the red team had gotten by the 15 minute mark. 
 
         :type blueKills: List[int]
         :rtype: List[int]
@@ -477,7 +479,7 @@ class MatchData:
             
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -509,7 +511,7 @@ class MatchData:
             
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -529,7 +531,7 @@ class MatchData:
 
     def blueEliteMonsterKills(self, match_history_timelines):
         """
-        Determines the number of elite monsters the blue team has killed by the 15 minute mark. Elite monsters
+        Determines the number of elite monsters the blue team had killed by the 15 minute mark. Elite monsters
         are either dragons or heralds/baron. 
 
         :type match_history_timelines: List[dict] 
@@ -543,7 +545,7 @@ class MatchData:
             numMonsters = 0
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -560,7 +562,7 @@ class MatchData:
 
     def redEliteMonsterKills(self, match_history_timelines):
         """
-        Determines the number of elite monsters the red team has killed by the 15 minute mark. Elite monsters
+        Determines the number of elite monsters the red team had killed by the 15 minute mark. Elite monsters
         are either dragons or heralds/baron. 
 
         :type match_history_timelines: List[dict] 
@@ -574,7 +576,7 @@ class MatchData:
             numMonsters = 0
             frames = timeline["frames"]
 
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -601,7 +603,7 @@ class MatchData:
         for timeline in match_history_timelines:
             numDragons = 0
             frames = timeline["frames"]
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -629,7 +631,7 @@ class MatchData:
         for timeline in match_history_timelines:
             numDragons = 0
             frames = timeline["frames"]
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -657,7 +659,7 @@ class MatchData:
         for timeline in match_history_timelines:
             numHeralds = 0
             frames = timeline["frames"]
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -687,7 +689,7 @@ class MatchData:
         for timeline in match_history_timelines:
             numHeralds = 0
             frames = timeline["frames"]
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -720,7 +722,7 @@ class MatchData:
             numTowers = 0
 
             frames = timeline["frames"]
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -751,7 +753,7 @@ class MatchData:
             numTowers = 0
 
             frames = timeline["frames"]
-            # Note that we loop 15 times, as we care only about the first 15 minutes of the game
+            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
@@ -1104,7 +1106,7 @@ if __name__ == "__main__":
     summoner_name = "Leego671"
     accountId = data.getAccountID(summoner_name) 
 
-    num_matches = 500
+    num_matches = 1000
     match_history = data.getMatchHistory(accountId, num_matches)
     cleaned_match_history = data.cleanMatchHistory(match_history)
 
@@ -1119,25 +1121,26 @@ if __name__ == "__main__":
     blueTotalExp = data.blueTotalExp(match_history_timelines) 
     redTotalExp = data.redTotalExp(match_history_timelines) 
 
-    blue_data = {"gameId": data.getGameIds(cleaned_match_history), 
-                "blueWins": data.blueWins(match_history_stats), 
-                "blueWardsPlaced": data.blueWardsPlaced(match_history_timelines), 
-                "blueWardKills": data.blueWardKills(match_history_timelines),
-                "blueFirstBlood": data.blueFirstBlood(match_history_stats), 
-                "blueKills": data.blueKills(match_history_timelines),
-                "blueDeaths": data.blueDeaths(redKills), 
-                "blueAssists": data.blueAssists(match_history_timelines), 
-                "blueEliteMonsterKills": data.blueEliteMonsterKills(match_history_timelines),
-                "blueDragonKills": data.blueDragonKills(match_history_timelines),
-                "blueHeraldKills": data.blueHeraldKills(match_history_timelines),
-                "blueTowerKills": data.blueTowerKills(match_history_timelines), 
-                "blueTotalGold": data.blueTotalGold(match_history_timelines), 
-                "blueAvgLvl": data.blueAvgLvl(match_history_timelines), 
-                "blueTotalExp": data.blueTotalExp(match_history_timelines),
-                "blueTotalMinionsKilled": data.blueTotalMinionsKilled(match_history_timelines), 
-                "blueGoldDiff": data.blueGoldDiff(blueTotalGold, redTotalGold),
-                "blueExpDiff": data.blueExpDiff(blueTotalExp, redTotalExp)
-                } 
+    blue_data = {
+        "gameId": data.getGameIds(cleaned_match_history), 
+        "blueWins": data.blueWins(match_history_stats), 
+        "blueWardsPlaced": data.blueWardsPlaced(match_history_timelines), 
+        "blueWardKills": data.blueWardKills(match_history_timelines),
+        "blueFirstBlood": data.blueFirstBlood(match_history_stats), 
+        "blueKills": data.blueKills(match_history_timelines),
+        "blueDeaths": data.blueDeaths(redKills), 
+        "blueAssists": data.blueAssists(match_history_timelines), 
+        "blueEliteMonsterKills": data.blueEliteMonsterKills(match_history_timelines),
+        "blueDragonKills": data.blueDragonKills(match_history_timelines),
+        "blueHeraldKills": data.blueHeraldKills(match_history_timelines),
+        "blueTowerKills": data.blueTowerKills(match_history_timelines), 
+        "blueTotalGold": data.blueTotalGold(match_history_timelines), 
+        "blueAvgLvl": data.blueAvgLvl(match_history_timelines), 
+        "blueTotalExp": data.blueTotalExp(match_history_timelines),
+        "blueTotalMinionsKilled": data.blueTotalMinionsKilled(match_history_timelines), 
+        "blueGoldDiff": data.blueGoldDiff(blueTotalGold, redTotalGold),
+        "blueExpDiff": data.blueExpDiff(blueTotalExp, redTotalExp)
+    } 
 
     red_data = {
         "redWins": data.redWins(match_history_stats), 
