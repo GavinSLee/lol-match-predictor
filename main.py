@@ -848,96 +848,75 @@ class MatchData:
 
 
     def redTotalMinionsKilled(self, curr_match_timeline):
-        """ Determines the total number of minions the red team has killed at the 15th minute mark for each timeline in curr_match_timeline. 
+        """ Determines the total number of minions the red team had killed by the 15th minute mark for a given timeline. 
 
-        :type curr_match_timeline: List[dict] 
-        :rtype: List[int]
+        :type curr_match_timeline: Dict 
+        :rtype: int
         """
 
+        totalMinions = 0
 
-        redTotalMinionsKilled = [] 
+        frames = curr_match_timeline["frames"]
 
-        for timeline in curr_match_timeline:
-            totalMinions = 0
+        curr_frame = frames[15] 
+        curr_participants = curr_frame["participantFrames"]
 
-            frames = timeline["frames"]
+        for i in range(1, 11):
+            curr_participant_frame = curr_participants[str(i)]
+            participantId = curr_participant_frame["participantId"]
+            # Checks that the participant is on the red team 
+            if participantId > 5:
+                totalMinions += curr_participant_frame["minionsKilled"] 
+        
+        return totalMinions  
 
-            curr_frame = frames[15] 
-            curr_participants = curr_frame["participantFrames"]
+    def blueGoldDiff(self, curr_match_timeline):
+        """ Finds the gold difference for the blue team given a timeline. 
 
-            for i in range(6, 11):
-                curr_player = curr_participants[str(i)]
-                totalMinions += curr_player["minionsKilled"] 
-            
-            redTotalMinionsKilled.append(totalMinions)
-
-        return redTotalMinionsKilled 
-
-    def blueGoldDiff(self, blueTotalGold, redTotalGold):
-        """ Finds the difference per match of the gold difference between the blue team and the red team at 15 minutes. 
-
-        :type blueTotalGold: List[int] 
-        :type redTotalGold: List[int]
-        :rtype: List[int]
+        :type curr_match_timeline: Dict
+        :rtype: int 
         """ 
 
-        blueGoldDiff = [] 
+        blueTotalGold = self.blueTotalGold(curr_match_timeline)
+        redTotalGold = self.redTotalGold(curr_match_timeline)
 
-        for i in range(len(blueTotalGold)):
-
-            diff = blueTotalGold[i] - redTotalGold[i] 
-            blueGoldDiff.append(diff) 
-
-        return blueGoldDiff
+        return blueTotalGold - redTotalGold 
 
     def redGoldDiff(self, blueTotalGold, redTotalGold):
-        """ Finds the difference per match of the gold difference between the red team and the blue team at 15 minutes. 
+        """ Finds the gold difference for the red team given a timeline. 
 
-        :type blueTotalGold: List[int] 
-        :type redTotalGold: List[int]
-        :rtype: List[int]
+        :type curr_match_timeline: Dict
+        :rtype: int 
         """ 
 
-        redGoldDiff = [] 
+        blueTotalGold = self.blueTotalGold(curr_match_timeline)
+        redTotalGold = self.redTotalGold(curr_match_timeline)
 
-        for i in range(len(blueTotalGold)):
+        return redTotalGold - blueTotalGold 
 
-            diff = redTotalGold[i] - blueTotalGold[i] 
-            redGoldDiff.append(diff) 
+    def blueExpDiff(self, curr_match_timeline):
+        """ Finds the XP difference for the blue team given a timeline. 
 
-        return redGoldDiff
-
-    def blueExpDiff(self, blueTotalExp, redTotalExp):
-        """ Finds the differnce per match of the exp difference between the blue team and the red team at 15 minutes. 
-
-        :type blueTotalExp, redTotalExp: List[int] 
-
-        :rtype: List[int]
+        :type curr_match_timeline: Dict 
+        :rtype: int
         """
 
-        blueExpDiff = [] 
+        blueTotalXP = self.blueTotalExp(curr_match_timeline)
+        redTotalXP = self.redTotalExp(curr_match_timeline)
 
-        for i in range(len(blueTotalExp)):
-            diff = blueTotalExp[i] - redTotalExp[i] 
-            blueExpDiff.append(diff) 
-
-        return blueExpDiff
+        return blueTotalXP - redTotalXP 
 
     def redExpDiff(self, blueTotalExp, redTotalExp):
-        """ Finds the differnce per match of the exp difference between the red team and the blue team at 15 minutes. 
+        """ Finds the XP difference for the red team given a timeline. 
 
-        :type blueTotalExp, redTotalExp: List[int] 
-
-        :rtype: List[int]
+        :type curr_match_timeline: Dict 
+        :rtype: int
         """
 
-        redExpDiff = [] 
+        blueTotalXP = self.blueTotalExp(curr_match_timeline)
+        redTotalXP = self.redTotalExp(curr_match_timeline)
 
-        for i in range(len(blueTotalExp)):
-            diff = redTotalExp[i] - blueTotalExp[i] 
-            redExpDiff.append(diff) 
-
-        return redExpDiff
+        return redTotalXP - blueTotalXP 
 
     def blueSummonerOnTeam(self, curr_match_stats):
         """ Determines whether the summoner we're training the model for is on the blue team for each match in match history.
