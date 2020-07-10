@@ -3,6 +3,7 @@ import numpy as np
 import requests 
 import pprint
 import time 
+import json 
 
 class MatchData:
 
@@ -10,7 +11,7 @@ class MatchData:
         # Change the API endpoint according to your game region. 
         self.api = "https://na1.api.riotgames.com"
         # Generate your personal API key on the Riot Games API website. 
-        self.api_key = "RGAPI-68b5e06e-4a74-4747-bc55-a8394c09dd76"
+        self.api_key = "RGAPI-647308a9-56a1-4f45-ae05-ddca8c6c6f45"
         
     
     def getAccountID(self, summoner_name):
@@ -32,58 +33,23 @@ class MatchData:
         return accountId
 
 
-    def getMatchHistory(self, accountId, num_matches):
+    def getMatchHistory(self, accountId, beginIndex, endIndex):
         """ Gets a summoner's match history up to the number of recent matches they want, with their account ID passed in. 
 
         :type account_id: String
+        :type beginIndex: int 
+        :type endIndex: int 
         :rtype: List[Dict]
         """
 
-
         match_history_endpoint = "/lol/match/v4/matchlists/by-account/" # Pass in the account_id as a parameter
         final_url = self.api + match_history_endpoint + accountId 
-        total_match_history = [] 
 
-        
-        for i in range(0, num_matches, 100):
-            beginIndex = i 
-            if num_matches - beginIndex < 100:
-                endIndex = num_matches 
-            else:
-                endIndex = i + 100 
+        params = {'api_key': self.api_key, 'beginIndex': beginIndex, 'endIndex': endIndex}
+        curr_match_history = requests.get(final_url, params=params).json()['matches'] 
+       
+        return curr_match_history 
 
-            params = {'api_key': self.api_key, 'beginIndex': beginIndex, 'endIndex': endIndex}
-            curr_match_history = requests.get(final_url, params=params).json()['matches']
-            total_match_history += curr_match_history
-
-
-        return total_match_history
-
-    def cleanMatchHistory(self, match_history):
-        """ Cleans match history by removing all games that are not on Summoner's Rift (i.e. removing games that are all ARAM).
-
-        :type match_history: List[Dict]
-        :rtype: List[Dict] 
-        """  
-
-        cleaned_match_history = [] 
-        counter = 0
-        for match in match_history:
-            matchId = str(match['gameId'])
-            curr_match_stats = self.getGameStats(matchId)  
-            curr_game_mode = curr_match_stats['gameMode']
-
-            print("Cleaning Match History!") 
-            print("Counter: " + str(counter) + "\n")
-            counter += 1
-            time.sleep(4) 
-
-            if curr_game_mode != "CLASSIC":
-                continue 
-            else: 
-                cleaned_match_history.append(match)
-
-        return cleaned_match_history 
 
     def getGameIds(self, match_history):
         """ Gets the gameId for each match in match history. 
@@ -92,10 +58,12 @@ class MatchData:
         :rtype: List[String]
         """
 
+
         matchIds = [] 
 
         for match in match_history:
-            matchId = str(match['gameId']) 
+            matchId = match['gameId'] 
+            matchId = str(matchId) 
             matchIds.append(matchId) 
         return matchIds 
 
@@ -111,28 +79,6 @@ class MatchData:
         final_url = self.api + match_stats_endpoint + matchId
         params = {'api_key':self.api_key}
         curr_match_stats = requests.get(final_url, params=params).json() 
-        return curr_match_stats
-
-    def getTotalGameStats(self, match_history):
-        """ Returns the total game stats for each match in match_history. 
-
-        :type match_history: List[dict] 
-        :rtype: List[dict]
-        """
-
-        curr_match_stats = [] 
-
-
-        counter = 0 
-        for match in match_history: 
-            print("Getting Total Game Stats!") 
-            print("Counter: " + str(counter) + "\n") 
-            matchId = str(match['gameId'])
-            curr_game_stats = self.getGameStats(matchId) 
-            curr_match_stats.append(curr_game_stats) 
-            counter += 1 
-            time.sleep(3) 
-
         return curr_match_stats 
 
     def getGameTimeline(self, matchId):
@@ -149,26 +95,20 @@ class MatchData:
 
         return curr_match_timeline 
 
-    def getTotalGameTimeline(self, match_history):
-        """ Returns a total timeline for each match played in match_history. 
+    def checkMatchValidity(self, curr_match_stats):
+        """ Checks whether the game is valid (i.e. the game is CLASSIC and the time is at least 15 minutes).
 
-        :type match_history: List[dict] 
-        :rtype: List[dict] 
+        :type curr_match_stats: Dict
+        :rtype: bool
         """
 
-        total_timeline = [] 
-
-        counter = 0 
-        for match in match_history: 
-            print("Getting Total Game Timeline!") 
-            print("Counter: " + str(counter) + "\n") 
-            matchId = str(match['gameId'])
-            curr_timeline = self.getGameTimeline(matchId) 
-            total_timeline.append(curr_timeline) 
-            counter += 1
-            time.sleep(3) 
-            
-        return total_timeline 
+        gameDuration = curr_match_stats["gameDuration"]
+        if gameDuration < 900:
+            return False 
+        elif curr_match_stats["gameMode"] != "CLASSIC":
+            return False 
+        else:
+            return True
 
     def blueWins(self, curr_match_stats):
         """
@@ -186,8 +126,6 @@ class MatchData:
             return 1  
         else:
             return 0   
-
-         
 
     def redWins(self, curr_match_stats):
         """
@@ -882,7 +820,7 @@ class MatchData:
 
         return blueTotalGold - redTotalGold 
 
-    def redGoldDiff(self, blueTotalGold, redTotalGold):
+    def redGoldDiff(self, curr_match_timeline):
         """ Finds the gold difference for the red team given a timeline. 
 
         :type curr_match_timeline: Dict
@@ -906,7 +844,7 @@ class MatchData:
 
         return blueTotalXP - redTotalXP 
 
-    def redExpDiff(self, blueTotalExp, redTotalExp):
+    def redExpDiff(self, curr_match_timeline):
         """ Finds the XP difference for the red team given a timeline. 
 
         :type curr_match_timeline: Dict 
@@ -919,50 +857,38 @@ class MatchData:
         return redTotalXP - blueTotalXP 
 
     def blueSummonerOnTeam(self, curr_match_stats):
-        """ Determines whether the summoner we're training the model for is on the blue team for each match in match history.
+        """ Determines whether the summoner we're training the model for is on the blue team given the current match stats.
 
-        :type curr_match_stats: List[dict] 
-        :rtype: List[int] 
+        :type curr_match_stats: Dict 
+        :rtype: int 
         """
 
+        participantIdentities = curr_match_stats["participantIdentities"]
 
-        onBlueTeam = [] 
+        for participant in participantIdentities:
 
-        for game in curr_match_stats: 
-            
-            # Returns an array of participants 
-            participantIdentities = game["participantIdentities"]
+            curr_player = participant["player"]
+            summoner_name = curr_player["summonerName"]
 
-            for participant in participantIdentities:
-
-                curr_player = participant["player"]
-                summoner_name = curr_player["summonerName"]
-
-                if summoner_name == "Leego671" or summoner_name == "ARealFlip":
-                    id_num = participant["participantId"] 
-
-                    if id_num < 6:
-                        onBlueTeam.append(1) 
-                    else:
-                        onBlueTeam.append(0) 
-
-        return onBlueTeam 
+            if summoner_name == "Leego671" or summoner_name == "ARealFlip":
+                id_num = participant["participantId"] 
+                if id_num < 6:
+                    return 1  
+                else:
+                    return 0  
     
-    def redSummonerOnTeam(self, onBlueTeam):
-        """ Given a list of bools of whether or not the summoner is on the blue team, flips every number in the list and returns if the summoner is on the red team. 
+    def redSummonerOnTeam(self, curr_match_stats):
+        """ Determines whether the summoner we're training the model for is on the red team given the current match stats.
 
-        :type onBlueTeam: List[int] 
-        :rtype: List[int]
+        :type curr_match_stats: Dict 
+        :rtype: int 
         """
 
-        onRedTeam = []
-        for i in range(len(onBlueTeam)):
-            if onBlueTeam[i] == 0:
-                onRedTeam.append(1)
-            else:
-                onRedTeam.append(0) 
-
-        return onRedTeam 
+        onBlueTeam = self.blueSummonerOnTeam(curr_match_stats) 
+        if onBlueTeam == 1:
+            return 0
+        else:
+            return 1 
         
     
 
@@ -971,67 +897,77 @@ if __name__ == "__main__":
     summoner_name = "Leego671"
     accountId = data.getAccountID(summoner_name) 
 
-    num_matches = 100
-    match_history = data.getMatchHistory(accountId, num_matches)
-    cleaned_match_history = data.cleanMatchHistory(match_history)
+    # Will get stats for up to the last 1000 matches 
+    for i in range(1000):
+        beginIndex = i 
+        endIndex = i + 1
+        match_history = data.getMatchHistory(accountId, beginIndex, endIndex) 
 
-    curr_match_stats = data.getTotalGameStats(cleaned_match_history)
-    curr_match_timeline = data.getTotalGameTimeline(cleaned_match_history)
+        if len(match_history) == 0:
+            break 
 
-    blueKills = data.blueKills(curr_match_timeline)
-    redKills = data.redKills(curr_match_timeline) 
+        match_ids = data.getGameIds(match_history) 
+        curr_match_id = match_ids[0]
 
-    blueTotalGold = data.blueTotalGold(curr_match_timeline) 
-    redTotalGold = data.redTotalGold(curr_match_timeline) 
-    blueTotalExp = data.blueTotalExp(curr_match_timeline) 
-    redTotalExp = data.redTotalExp(curr_match_timeline) 
+        print("Begin Index: " + str(beginIndex)) 
+        print("Current Game ID: " + curr_match_id + "\n")
+        curr_match_stats = data.getGameStats(curr_match_id)
+        curr_match_timeline = data.getGameTimeline(curr_match_id)
 
-    blue_data = {
-        "gameId": data.getGameIds(cleaned_match_history), 
-        "blueWins": data.blueWins(curr_match_stats), 
-        "blueWardsPlaced": data.blueWardsPlaced(curr_match_timeline), 
-        "blueWardKills": data.blueWardKills(curr_match_timeline),
-        "blueFirstBlood": data.blueFirstBlood(curr_match_stats), 
-        "blueKills": data.blueKills(curr_match_timeline),
-        "blueDeaths": data.blueDeaths(redKills), 
-        "blueAssists": data.blueAssists(curr_match_timeline), 
-        "blueEliteMonsterKills": data.blueEliteMonsterKills(curr_match_timeline),
-        "blueDragonKills": data.blueDragonKills(curr_match_timeline),
-        "blueHeraldKills": data.blueHeraldKills(curr_match_timeline),
-        "blueTowerKills": data.blueTowerKills(curr_match_timeline), 
-        "blueTotalGold": data.blueTotalGold(curr_match_timeline), 
-        "blueAvgLvl": data.blueAvgLvl(curr_match_timeline), 
-        "blueTotalExp": data.blueTotalExp(curr_match_timeline),
-        "blueTotalMinionsKilled": data.blueTotalMinionsKilled(curr_match_timeline), 
-        "blueGoldDiff": data.blueGoldDiff(blueTotalGold, redTotalGold),
-        "blueExpDiff": data.blueExpDiff(blueTotalExp, redTotalExp)
-    } 
+        if data.checkMatchValidity(curr_match_stats) == False:
+            continue 
 
-    red_data = {
-        "redWins": data.redWins(curr_match_stats), 
-        "redWardsPlaced": data.redWardsPlaced(curr_match_timeline),
-        "redWardKills": data.redWardKills(curr_match_timeline), 
-        "redFirstBlood": data.redFirstBlood(curr_match_stats), 
-        "redKills": data.redKills(curr_match_timeline),
-        "redDeaths": data.redDeaths(blueKills),
-        "redAssists": data.redAssists(curr_match_timeline),
-        "redEliteMonsterKills": data.redEliteMonsterKills(curr_match_timeline),
-        "redDragonKills": data.redDragonKills(curr_match_timeline),
-        "redHeraldKills": data.redHeraldKills(curr_match_timeline), 
-        "redTowerKills": data.redTowerKills(curr_match_timeline), 
-        "redTotalGold": data.redTotalGold(curr_match_timeline),
-        "redAvgLvl": data.redAvgLvl(curr_match_timeline),
-        "redTotalExp": data.redTotalExp(curr_match_timeline),
-        "redTotalMinionsKilled": data.redTotalMinionsKilled(curr_match_timeline), 
-        "redGoldDiff": data.redGoldDiff(blueTotalGold, redTotalGold), 
-        "redExpDiff": data.redExpDiff(blueTotalExp, redTotalExp)
-    }
+        blue_data = {
+            "gameId": [curr_match_id], 
+            "onBlueTeam": [data.blueSummonerOnTeam(curr_match_stats)],
+            "blueWins": [data.blueWins(curr_match_stats)], 
+            "blueWardsPlaced": [data.blueWardsPlaced(curr_match_timeline)], 
+            "blueWardKills": [data.blueWardKills(curr_match_timeline)],
+            "blueFirstBlood": [data.blueFirstBlood(curr_match_stats)], 
+            "blueKills": [data.blueKills(curr_match_timeline)],
+            "blueDeaths": [data.blueDeaths(curr_match_timeline)], 
+            "blueAssists": [data.blueAssists(curr_match_timeline)], 
+            "blueEliteMonsterKills": [data.blueEliteMonsterKills(curr_match_timeline)],
+            "blueDragonKills": [data.blueDragonKills(curr_match_timeline)],
+            "blueHeraldKills": [data.blueHeraldKills(curr_match_timeline)],
+            "blueTowerKills": [data.blueTowerKills(curr_match_timeline)], 
+            "blueTotalGold": [data.blueTotalGold(curr_match_timeline)], 
+            "blueAvgLvl": [data.blueAvgLvl(curr_match_timeline)], 
+            "blueTotalExp": [data.blueTotalExp(curr_match_timeline)],
+            "blueTotalMinionsKilled": [data.blueTotalMinionsKilled(curr_match_timeline)], 
+            "blueGoldDiff": [data.blueGoldDiff(curr_match_timeline)],
+            "blueExpDiff": [data.blueExpDiff(curr_match_timeline)]
+        } 
+
+        red_data = {
+            "onRedTeam": [data.redSummonerOnTeam(curr_match_stats)],
+            "redWins": [data.redWins(curr_match_stats)], 
+            "redWardsPlaced": [data.redWardsPlaced(curr_match_timeline)],
+            "redWardKills": [data.redWardKills(curr_match_timeline)], 
+            "redFirstBlood": [data.redFirstBlood(curr_match_stats)], 
+            "redKills": [data.redKills(curr_match_timeline)],
+            "redDeaths": [data.redDeaths(curr_match_timeline)],
+            "redAssists": [data.redAssists(curr_match_timeline)],
+            "redEliteMonsterKills": [data.redEliteMonsterKills(curr_match_timeline)],
+            "redDragonKills": [data.redDragonKills(curr_match_timeline)],
+            "redHeraldKills": [data.redHeraldKills(curr_match_timeline)], 
+            "redTowerKills": [data.redTowerKills(curr_match_timeline)], 
+            "redTotalGold": [data.redTotalGold(curr_match_timeline)],
+            "redAvgLvl": [data.redAvgLvl(curr_match_timeline)],
+            "redTotalExp": [data.redTotalExp(curr_match_timeline)],
+            "redTotalMinionsKilled": [data.redTotalMinionsKilled(curr_match_timeline)], 
+            "redGoldDiff": [data.redGoldDiff(curr_match_timeline)], 
+            "redExpDiff": [data.redExpDiff(curr_match_timeline)]
+        }
+
+        pprint.pprint(blue_data) 
 
 
-    df1 = pd.DataFrame(data = blue_data)
-    df2 = pd.DataFrame(data = red_data)
-    final_df = pd.concat([df1, df2], axis = 1) 
-    final_df.to_csv('league_data.csv')
-    print(final_df) 
+        df1 = pd.DataFrame(data = blue_data)
+        df2 = pd.DataFrame(data = red_data)
+        final_df = pd.concat([df1, df2], axis = 1) 
+        final_df.to_csv('league_data.csv', mode = 'a', header=False)
+
+        time.sleep(5) 
   
     
