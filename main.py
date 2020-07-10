@@ -3,7 +3,6 @@ import numpy as np
 import requests 
 import pprint
 import time 
-import json 
 
 class MatchData:
 
@@ -36,6 +35,8 @@ class MatchData:
     def getMatchHistory(self, accountId, beginIndex, endIndex):
         """ Gets a summoner's match history up to the number of recent matches they want, with their account ID passed in. 
 
+        NOTE: The current implementation only gets one match at a time. This is purposefully done such that we can ammend the script incrementally and check for bugs without losing too much progress (i.e. having to loop through all of the matches again). 
+
         :type account_id: String
         :type beginIndex: int 
         :type endIndex: int 
@@ -47,25 +48,8 @@ class MatchData:
 
         params = {'api_key': self.api_key, 'beginIndex': beginIndex, 'endIndex': endIndex}
         curr_match_history = requests.get(final_url, params=params).json()['matches'] 
-       
-        return curr_match_history 
 
-
-    def getGameIds(self, match_history):
-        """ Gets the gameId for each match in match history. 
-
-        :type match_history: List[Dict]
-        :rtype: List[String]
-        """
-
-
-        matchIds = [] 
-
-        for match in match_history:
-            matchId = match['gameId'] 
-            matchId = str(matchId) 
-            matchIds.append(matchId) 
-        return matchIds 
+        return curr_match_history
 
     def getGameStats(self, matchId):
         """ Gets a game's stats given a matchId; matchId to be passed into the URL 
@@ -73,7 +57,6 @@ class MatchData:
         :type matchId: String
         :rtype: Dict
         """ 
-
 
         match_stats_endpoint = "/lol/match/v4/matches/"
         final_url = self.api + match_stats_endpoint + matchId
@@ -899,26 +882,28 @@ if __name__ == "__main__":
 
     # Will get stats for up to the last 1000 matches 
     for i in range(1000):
+        time.sleep(3) 
         beginIndex = i 
         endIndex = i + 1
-        match_history = data.getMatchHistory(accountId, beginIndex, endIndex) 
+        curr_match_history = data.getMatchHistory(accountId, beginIndex, endIndex) 
 
-        if len(match_history) == 0:
+        if len(curr_match_history) == 0:
             break 
 
-        match_ids = data.getGameIds(match_history) 
-        curr_match_id = match_ids[0]
+        curr_match = curr_match_history[0] 
+
+        match_id = str(curr_match["gameId"])
 
         print("Begin Index: " + str(beginIndex)) 
-        print("Current Game ID: " + curr_match_id + "\n")
-        curr_match_stats = data.getGameStats(curr_match_id)
-        curr_match_timeline = data.getGameTimeline(curr_match_id)
+        print("Current Game ID: " + match_id + "\n")
+        curr_match_stats = data.getGameStats(match_id)
+        curr_match_timeline = data.getGameTimeline(match_id)
 
         if data.checkMatchValidity(curr_match_stats) == False:
             continue 
 
         blue_data = {
-            "gameId": [curr_match_id], 
+            "gameId": [match_id], 
             "onBlueTeam": [data.blueSummonerOnTeam(curr_match_stats)],
             "blueWins": [data.blueWins(curr_match_stats)], 
             "blueWardsPlaced": [data.blueWardsPlaced(curr_match_timeline)], 
@@ -960,14 +945,15 @@ if __name__ == "__main__":
             "redExpDiff": [data.redExpDiff(curr_match_timeline)]
         }
 
-        pprint.pprint(blue_data) 
-
 
         df1 = pd.DataFrame(data = blue_data)
         df2 = pd.DataFrame(data = red_data)
         final_df = pd.concat([df1, df2], axis = 1) 
-        final_df.to_csv('league_data.csv', mode = 'a', header=False)
 
-        time.sleep(5) 
+        if i == 0: 
+            final_df.to_csv('league_data.csv', mode = 'a', header=True)
+        else:
+            final_df.to_csv('league_data.csv', mode = 'a', header=False)
+
   
     
