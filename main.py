@@ -878,13 +878,14 @@ if __name__ == "__main__":
     accountId = data.getAccountID(summoner_name) 
 
     # Will get stats for up to the last 1000 matches 
-    for i in range(1000):
+    for i in range(0, 1000):
         time.sleep(7) 
         beginIndex = i 
         endIndex = i + 1
         curr_match_history = data.getMatchHistory(accountId, beginIndex, endIndex) 
 
         if len(curr_match_history) == 0:
+            print("DONE!")
             break 
 
         curr_match = curr_match_history[0] 
