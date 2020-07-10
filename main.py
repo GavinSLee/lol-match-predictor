@@ -52,7 +52,7 @@ class MatchData:
         return curr_match_history
 
     def getGameStats(self, matchId):
-        """ Gets a game's stats given a matchId; matchId to be passed into the URL 
+        """ Gets a game's stats given a matchId; matchId to be passed into the URL.
 
         :type matchId: String
         :rtype: Dict
@@ -65,7 +65,7 @@ class MatchData:
         return curr_match_stats 
 
     def getGameTimeline(self, matchId):
-        """ Gets a game's timeline given a matchId; matchId to be passed into the URL 
+        """ Gets a game's timeline given a matchId; matchId to be passed into the URL.
 
         :type matchId: String
         :rtype: Dict
@@ -79,7 +79,7 @@ class MatchData:
         return curr_match_timeline 
 
     def checkMatchValidity(self, curr_match_stats):
-        """ Checks whether the game is valid (i.e. the game is CLASSIC and the time is at least 15 minutes).
+        """ Checks whether the game is valid (i.e. the game is CLASSIC and the game duration is at least 15 minutes).
 
         :type curr_match_stats: Dict
         :rtype: bool
@@ -95,7 +95,7 @@ class MatchData:
 
     def blueWins(self, curr_match_stats):
         """
-        Counts whether blue wins given the current match stats. The output is 1 if the blue team wins, 0 if 
+        Checks whether blue wins given the current match stats. The output is 1 if the blue team wins, 0 if 
         the blue team loses.
 
         :type curr_match_stats: Dict
@@ -119,7 +119,6 @@ class MatchData:
         :rtype: int 
         """
 
-
         teams = curr_match_stats["teams"]
         red_team = teams[1] # Returns a dict of the red team's basic stats, with winning or losing indicated
         if red_team["win"] == "Win":
@@ -139,18 +138,17 @@ class MatchData:
         numBlueWards = 0 
         frames = curr_match_timeline["frames"]
         # Note that we loop 16 times, as we care only about the first 15 minutes of the game
-        if len(frames) > 15:
-            for i in range(16): 
-                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
-                curr_frame = frames[i] 
-                # Gives us an array of the events that took place during this ith minute 
-                curr_events = curr_frame["events"]
-                for event in curr_events:             
-                    # NOTE: We only care about blue wards, yellow wards, and pink wards 
-                    if event["type"] == "WARD_PLACED" and event["creatorId"] < 6:
-                        if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
+        for i in range(16): 
+            # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+            curr_frame = frames[i] 
+            # Gives us an array of the events that took place during this ith minute 
+            curr_events = curr_frame["events"]
+            for event in curr_events:             
+                # NOTE: We only care about blue wards, yellow wards, and pink wards 
+                if event["type"] == "WARD_PLACED":
+                    if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
+                        if event["creatorId"] < 6:
                             numBlueWards += 1
-        
         return numBlueWards
 
     def redWardsPlaced(self, curr_match_timeline):
@@ -164,16 +162,16 @@ class MatchData:
         numRedWards = 0 
         frames = curr_match_timeline["frames"]
         # Note that we loop 16 times, as we care only about the first 15 minutes of the game
-        if len(frames) > 15:
-            for i in range(16): 
-                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
-                curr_frame = frames[i] 
-                # Gives us an array of the events that took place during this ith minute 
-                curr_events = curr_frame["events"]
-                for event in curr_events:             
-                    # NOTE: We only care about blue wards, yellow wards, and pink wards 
-                    if event["type"] == "WARD_PLACED" and event["creatorId"] > 5:
-                        if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
+        for i in range(16): 
+            # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+            curr_frame = frames[i] 
+            # Gives us an array of the events that took place during this ith minute 
+            curr_events = curr_frame["events"]
+            for event in curr_events:             
+                # NOTE: We only care about blue wards, yellow wards, and pink wards 
+                if event["type"] == "WARD_PLACED":
+                    if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
+                        if event["creatorId"] > 5:
                             numRedWards += 1
         
         return numRedWards
@@ -228,7 +226,7 @@ class MatchData:
 
             for event in curr_events: 
                 # Checks that the event type is a ward kill  
-                # and the particiant is on the blue team 
+                # and the particiant is on the red team 
                 if event["type"] == "WARD_KILL":
                         if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
                             if event["killerId"] > 5:
@@ -238,7 +236,7 @@ class MatchData:
 
     def blueFirstBlood(self, curr_match_stats):
         """ 
-        Determines whether the blue team secured First Blood given the current match stats.  
+        Determines whether the blue team secured first blood given the current match stats.  
 
         :type curr_match_stats: Dict
         :rtype: int 
@@ -253,7 +251,7 @@ class MatchData:
 
     def redFirstBlood(self, curr_match_stats):
         """ 
-        Determines whether the red team secured First Blood given the current match stats.  
+        Determines whether the red team secured first blood given the current match stats.  
 
         :type curr_match_stats: Dict
         :rtype: int 
@@ -395,12 +393,11 @@ class MatchData:
     def blueEliteMonsterKills(self, curr_match_timeline):
         """
         Determines the number of elite monsters the blue team had killed by the 15 minute mark given a timeline. Elite monsters
-        are either dragons or heralds/baron. 
+        are either dragons or heralds/barons. 
 
         :type curr_match_timeline: Dict
         :rtype: int
         """ 
-
 
         numMonsters = 0
         frames = curr_match_timeline["frames"]
@@ -882,7 +879,7 @@ if __name__ == "__main__":
 
     # Will get stats for up to the last 1000 matches 
     for i in range(1000):
-        time.sleep(3) 
+        time.sleep(7) 
         beginIndex = i 
         endIndex = i + 1
         curr_match_history = data.getMatchHistory(accountId, beginIndex, endIndex) 
