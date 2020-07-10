@@ -10,7 +10,7 @@ class MatchData:
         # Change the API endpoint according to your game region. 
         self.api = "https://na1.api.riotgames.com"
         # Generate your personal API key on the Riot Games API website. 
-        self.api_key = "RGAPI-0ac392f7-36fa-4d01-aa62-a5e2b6c15e62"
+        self.api_key = "RGAPI-68b5e06e-4a74-4747-bc55-a8394c09dd76"
         
     
     def getAccountID(self, summoner_name):
@@ -120,7 +120,7 @@ class MatchData:
         :rtype: List[dict]
         """
 
-        match_history_stats = [] 
+        curr_match_stats = [] 
 
 
         counter = 0 
@@ -129,11 +129,11 @@ class MatchData:
             print("Counter: " + str(counter) + "\n") 
             matchId = str(match['gameId'])
             curr_game_stats = self.getGameStats(matchId) 
-            match_history_stats.append(curr_game_stats) 
+            curr_match_stats.append(curr_game_stats) 
             counter += 1 
             time.sleep(3) 
 
-        return match_history_stats 
+        return curr_match_stats 
 
     def getGameTimeline(self, matchId):
         """ Gets a game's timeline given a matchId; matchId to be passed into the URL 
@@ -170,156 +170,132 @@ class MatchData:
             
         return total_timeline 
 
-    def blueWins(self, match_history_stats):
+    def blueWins(self, curr_match_stats):
         """
-        Counts the occurrences at which blue wins given a list of game stats for each game. The output is 1 if the blue team wins, 0 if 
+        Counts whether blue wins given the current match stats. The output is 1 if the blue team wins, 0 if 
         the blue team loses.
 
-        :type match_history_stats: List[dict]
-        :rtype: List[bool]
+        :type curr_match_stats: Dict
+        :rtype: int 
         """
 
-        blueWins = [] 
 
-        for game in match_history_stats:
-            teams = game["teams"]
-            blue_team = teams[0] # Returns a dict of the blue team's basic stats, with winning or losing indicated
-            if blue_team["win"] == "Win":
-                blueWins.append(1) 
-            else:
-                blueWins.append(0)  
+        teams = curr_match_stats["teams"]
+        blue_team = teams[0] # Returns a dict of the blue team's basic stats, with winning or losing indicated
+        if blue_team["win"] == "Win":
+            return 1  
+        else:
+            return 0   
 
-        return blueWins 
+         
 
-    def redWins(self, match_history_stats):
+    def redWins(self, curr_match_stats):
         """
-        Counts the occurrences at which the red team wins given a list of game stats for each game. The output is 1 if the red team wins, 0 if the red team loses.
+        Counts whether red wins given the current match stats. The output is 1 if the red team wins, 0 if 
+        the red team loses.
 
-        :type match_history_stats: List[dict]
-        :rtype: List[bool]
-        """
-
-        redWins = [] 
-
-        for game in match_history_stats :
-            teams = game["teams"]
-            red_team = teams[1] # Returns a dict of the red team's basic stats, with winning or losing indicated
-            if red_team["win"] == "Win":
-                redWins.append(1) 
-            else:
-                redWins.append(0) 
-
-        return redWins 
-
-
-    def blueWardsPlaced(self, match_history_timelines):
-        """
-        Counts the number of wards the blue team had placed down by the 15 minute mark for each timeline in match_history_timelines. 
-
-
-        :type match_history_timelines: List[dict]
-        :rtype: List[int] 
+        :type curr_match_stats: Dict
+        :rtype: int 
         """
 
-        blueWardsPlaced = [] 
 
-        for timeline in match_history_timelines:
-            numBlueWards = 0 
+        teams = curr_match_stats["teams"]
+        red_team = teams[1] # Returns a dict of the red team's basic stats, with winning or losing indicated
+        if red_team["win"] == "Win":
+            return 1  
+        else:
+            return 0   
 
-            frames = timeline["frames"]
 
-            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
+    def blueWardsPlaced(self, curr_match_timeline):
+        """
+        Counts the number of wards the blue team had placed down by the 15 minute mark for a given match timeline. 
+
+        :type curr_match_timeline: Dict
+        :rtype: int 
+        """
+
+        numBlueWards = 0 
+        frames = curr_match_timeline["frames"]
+        # Note that we loop 16 times, as we care only about the first 15 minutes of the game
+        if len(frames) > 15:
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
                 # Gives us an array of the events that took place during this ith minute 
                 curr_events = curr_frame["events"]
-
                 for event in curr_events:             
                     # NOTE: We only care about blue wards, yellow wards, and pink wards 
                     if event["type"] == "WARD_PLACED" and event["creatorId"] < 6:
                         if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
                             numBlueWards += 1
+        
+        return numBlueWards
 
-            blueWardsPlaced.append(numBlueWards)
-
-        return blueWardsPlaced
-
-    def redWardsPlaced(self, match_history_timelines):
+    def redWardsPlaced(self, curr_match_timeline):
         """
-        Counts the number of wards the red team had placed down by the 15 minute mark for each timeline in match_history_timelines. 
+        Counts the number of wards the red team had placed down by the 15 minute mark for a given match timeline. 
 
-
-        :type match_history: List[dict]
-        :rtype: List[int] 
+        :type curr_match_timeline: Dict
+        :rtype: int 
         """
 
-        redWardsPlaced = [] 
-
-        for timeline in match_history_timelines:
-            numRedWards = 0 
-
-            frames = timeline["frames"]
-
-            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
+        numRedWards = 0 
+        frames = curr_match_timeline["frames"]
+        # Note that we loop 16 times, as we care only about the first 15 minutes of the game
+        if len(frames) > 15:
             for i in range(16): 
                 # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
                 curr_frame = frames[i] 
                 # Gives us an array of the events that took place during this ith minute 
                 curr_events = curr_frame["events"]
-
-                for event in curr_events:
+                for event in curr_events:             
                     # NOTE: We only care about blue wards, yellow wards, and pink wards 
                     if event["type"] == "WARD_PLACED" and event["creatorId"] > 5:
                         if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
                             numRedWards += 1
-
-            redWardsPlaced.append(numRedWards)
-
-        return redWardsPlaced
+        
+        return numRedWards
     
-    def blueWardKills(self, match_history_timelines):
+    def blueWardKills(self, curr_match_timeline):
         """
-        Counts the number of wards the blue team had destroyed by the 15 minute mark for each timeline in match_history_timelines. 
+        Counts the number of wards the blue team had destroyed by the 15 minute mark for a given match timeline. 
 
-        :type match_history_timelines: List[dict]
-        :rtype: List[int] 
+        :type curr_match_timeline: Dict
+        :rtype: int 
         """
 
-        blueWardKills = []
 
-        for timeline in match_history_timelines:
-            numDestroyed = 0
-            frames = timeline["frames"]
+        numDestroyed = 0
+        frames = curr_match_timeline["frames"]
 
-            # Note that we loop 16 times, as we care only about the first 15 minutes of the game
-            for i in range(16): 
-                # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
-                curr_frame = frames[i] 
-                # Gives us an array of the events that took place during this ith minute 
-                curr_events = curr_frame["events"]
+        # Note that we loop 16 times, as we care only about the first 15 minutes of the game
+        for i in range(16): 
+            # This gives us the current frame that we're on (i.e. the ith to ith + 1 minute of the game)
+            curr_frame = frames[i] 
+            # Gives us an array of the events that took place during this ith minute 
+            curr_events = curr_frame["events"]
 
-                for event in curr_events: 
-                    # Checks that the event type is a ward kill  
-                    # and the particiant is on the blue team 
-                    if event["type"] == "WARD_KILL" and event["killerId"] < 6:
-                        if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
-                            numDestroyed += 1
-           
-            blueWardKills.append(numDestroyed) 
-        return blueWardKills
+            for event in curr_events: 
+                # Checks that the event type is a ward kill  
+                # and the particiant is on the blue team 
+                if event["type"] == "WARD_KILL" and event["killerId"] < 6:
+                    if event["wardType"] == "YELLOW_TRINKET" or event["wardType"] == "CONTROL_WARD" or event["wardType"] == "BLUE_TRINKET":
+                        numDestroyed += 1
+        
+        return numDestroyed
     
-    def redWardKills(self, match_history_timelines):
+    def redWardKills(self, curr_match_timeline):
         """ 
-        Counts the number of wards the red team had destroyed by the 15 minute mark for each match in match_history_timelines. 
+        Counts the number of wards the red team had destroyed by the 15 minute mark for each match in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int] 
         """
 
         redWardKills = []
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numDestroyed = 0
             
             frames = timeline["frames"]
@@ -341,18 +317,18 @@ class MatchData:
             redWardKills.append(numDestroyed) 
         return redWardKills
 
-    def blueFirstBlood(self, match_history_stats):
+    def blueFirstBlood(self, curr_match_stats):
         """ 
-        Determines whether the blue team secured First Blood in each match in match_history_stats.  
+        Determines whether the blue team secured First Blood in each match in curr_match_stats.  
 
-        :type match_history_stats: List[dict]
+        :type curr_match_stats: List[dict]
         :rtype: List[int] 
         """
 
 
         blueFirstBlood = [] 
 
-        for match in match_history_stats:
+        for match in curr_match_stats:
             teams = match["teams"]
             blue_team = teams[0] # Returns a dict of the blue team's basic stats
             if blue_team["firstBlood"] == True:
@@ -363,17 +339,17 @@ class MatchData:
         return blueFirstBlood
 
     
-    def redFirstBlood(self, match_history_stats):
+    def redFirstBlood(self, curr_match_stats):
         """
-        Determines whether the red team secured First Blood in each match in match_history_stats.  
+        Determines whether the red team secured First Blood in each match in curr_match_stats.  
 
-        :type match_history_stats: List[dict]
+        :type curr_match_stats: List[dict]
         :rtype: List[int]
         """
 
         redFirstBlood = [] 
 
-        for match in match_history_stats:
+        for match in curr_match_stats:
             teams = match["teams"]
             red_team = teams[1] # Returns a dict of the blue team's basic stats
             if red_team["firstBlood"] == True:
@@ -383,17 +359,17 @@ class MatchData:
 
         return redFirstBlood 
 
-    def blueKills(self, match_history_timelines):
+    def blueKills(self, curr_match_timeline):
         """
         Counts the number of kills the blue team had gotten by the 15 minute mark. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int] 
         """
 
         blueKills = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numKills = 0
             frames = timeline["frames"]
 
@@ -413,17 +389,17 @@ class MatchData:
             blueKills.append(numKills)  
         return blueKills 
 
-    def redKills(self, match_history_timelines):
+    def redKills(self, curr_match_timeline):
         """
         Counts the number of kills the red team had gotten by the 15 minute mark. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int] 
         """
 
         redKills = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numKills = 0
             frames = timeline["frames"]
 
@@ -464,17 +440,17 @@ class MatchData:
 
         return blueKills 
 
-    def blueAssists(self, match_history_timelines):
+    def blueAssists(self, curr_match_timeline):
         """
         Counts the number of assists the blue team had gotten by the 15 minute mark. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int]
         """
 
         blueAssists = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numAssists = 0
             
             frames = timeline["frames"]
@@ -496,17 +472,17 @@ class MatchData:
 
         return blueAssists
 
-    def redAssists(self, match_history_timelines):
+    def redAssists(self, curr_match_timeline):
         """
         Counts the number of assists the red team had gotten by the 15 minute mark. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int]
         """
 
         redAssists = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numAssists = 0
             
             frames = timeline["frames"]
@@ -529,19 +505,19 @@ class MatchData:
         return redAssists
 
 
-    def blueEliteMonsterKills(self, match_history_timelines):
+    def blueEliteMonsterKills(self, curr_match_timeline):
         """
         Determines the number of elite monsters the blue team had killed by the 15 minute mark. Elite monsters
         are either dragons or heralds/baron. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int]
 
         """ 
 
         blueEliteMonsters = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numMonsters = 0
             frames = timeline["frames"]
 
@@ -560,19 +536,19 @@ class MatchData:
 
         return blueEliteMonsters
 
-    def redEliteMonsterKills(self, match_history_timelines):
+    def redEliteMonsterKills(self, curr_match_timeline):
         """
         Determines the number of elite monsters the red team had killed by the 15 minute mark. Elite monsters
         are either dragons or heralds/baron. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int]
 
         """ 
 
         redEliteMonsters = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numMonsters = 0
             frames = timeline["frames"]
 
@@ -591,16 +567,16 @@ class MatchData:
 
         return redEliteMonsters
 
-    def blueDragonKills(self, match_history_timelines):
+    def blueDragonKills(self, curr_match_timeline):
         """ Determines how many dragons the blue team killed in the first 15 minutes 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
         blueDragonKills = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numDragons = 0
             frames = timeline["frames"]
             # Note that we loop 16 times, as we care only about the first 15 minutes of the game
@@ -619,16 +595,16 @@ class MatchData:
 
         return blueDragonKills
 
-    def redDragonKills(self, match_history_timelines):
+    def redDragonKills(self, curr_match_timeline):
         """ Determines how many dragons the red team killed in the first 15 minutes 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
         redDragonKills = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numDragons = 0
             frames = timeline["frames"]
             # Note that we loop 16 times, as we care only about the first 15 minutes of the game
@@ -647,16 +623,16 @@ class MatchData:
 
         return redDragonKills
 
-    def blueHeraldKills(self, match_history_timelines):
+    def blueHeraldKills(self, curr_match_timeline):
         """ Determines how many Heralds the blue team has killed in the first 15 minutes 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
         blueHeraldKills = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numHeralds = 0
             frames = timeline["frames"]
             # Note that we loop 16 times, as we care only about the first 15 minutes of the game
@@ -677,16 +653,16 @@ class MatchData:
 
 
 
-    def redHeraldKills(self, match_history_timelines):
+    def redHeraldKills(self, curr_match_timeline):
         """ Determines how many Heralds the red team has killed in the first 15 minutes 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
         redHeraldKills = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             numHeralds = 0
             frames = timeline["frames"]
             # Note that we loop 16 times, as we care only about the first 15 minutes of the game
@@ -706,19 +682,19 @@ class MatchData:
         return redHeraldKills
 
 
-    def blueTowerKills(self, match_history_timelines):
+    def blueTowerKills(self, curr_match_timeline):
         """
         Counts how many towers the blue team has destroyed by the 15th minute mark for
-        each timeline in match_history_timelines. 
+        each timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
 
         blueTowerKills = [] 
 
-        for timeline in match_history_timelines: 
+        for timeline in curr_match_timeline: 
             numTowers = 0
 
             frames = timeline["frames"]
@@ -737,19 +713,19 @@ class MatchData:
 
         return blueTowerKills  
 
-    def redTowerKills(self, match_history_timelines):
+    def redTowerKills(self, curr_match_timeline):
         """
         Counts how many towers the red team has destroyed by the 15th minute mark for each
-        timeline in match_history_timelines. 
+        timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
 
         redTowerKills = [] 
 
-        for timeline in match_history_timelines: 
+        for timeline in curr_match_timeline: 
             numTowers = 0
 
             frames = timeline["frames"]
@@ -769,17 +745,17 @@ class MatchData:
 
         return redTowerKills 
 
-    def blueTotalGold(self, match_history_timelines):
+    def blueTotalGold(self, curr_match_timeline):
         """ Determines the total gold of the blue team at the 15th minute mark for each
-        timeline in match_history_timelines. 
+        timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
         blueTotalGold = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalGold = 0 
             frames = timeline["frames"]
 
@@ -795,17 +771,17 @@ class MatchData:
 
         return blueTotalGold
 
-    def redTotalGold(self, match_history_timelines):
+    def redTotalGold(self, curr_match_timeline):
         """ Determines the total gold of the red team at the 15th minute mark for each
-        timeline in match_history_timelines. 
+        timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
         redTotalGold = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalGold = 0 
             frames = timeline["frames"]
 
@@ -822,18 +798,18 @@ class MatchData:
 
         return redTotalGold
 
-    def blueAvgLvl(self, match_history_timelines):
+    def blueAvgLvl(self, curr_match_timeline):
         """ 
-        Determines the average level of the blue team at the 15th minute mark for each timeline in match_history_timelines. 
+        Determines the average level of the blue team at the 15th minute mark for each timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
 
         blueAvgLvl = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalLvl = 0 
 
             frames = timeline["frames"]
@@ -851,18 +827,18 @@ class MatchData:
 
         return blueAvgLvl 
 
-    def redAvgLvl(self, match_history_timelines):
+    def redAvgLvl(self, curr_match_timeline):
         """ 
-        Determines the average level of the red team at the 15th minute mark for each timeline in match_history_timelines. 
+        Determines the average level of the red team at the 15th minute mark for each timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
 
         redAvgLvl = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalLvl = 0 
 
             frames = timeline["frames"]
@@ -880,18 +856,18 @@ class MatchData:
 
         return redAvgLvl 
 
-    def blueTotalExp(self, match_history_timelines):
-        """ Determines the total experience the blue team has at the 15th minute mark for each timeline in match_history_timelines. 
+    def blueTotalExp(self, curr_match_timeline):
+        """ Determines the total experience the blue team has at the 15th minute mark for each timeline in curr_match_timeline. 
 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
 
         blueTotalExp = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalExp = 0 
 
             frames = timeline["frames"]
@@ -907,18 +883,18 @@ class MatchData:
 
         return blueTotalExp
 
-    def redTotalExp(self, match_history_timelines):
-        """ Determines the total experience the red team has at the 15th minute mark for each timeline in match_history_timelines. 
+    def redTotalExp(self, curr_match_timeline):
+        """ Determines the total experience the red team has at the 15th minute mark for each timeline in curr_match_timeline. 
 
 
-        :type match_history_timelines: List[dict]
+        :type curr_match_timeline: List[dict]
         :rtype: List[int]
         """
 
 
         redTotalExp = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalExp = 0 
 
             frames = timeline["frames"]
@@ -934,17 +910,17 @@ class MatchData:
 
         return redTotalExp
     
-    def blueTotalMinionsKilled(self, match_history_timelines):
-        """ Determines the total number of minions the blue team has killed at the 15th minute mark for each timeline in match_history_timelines. 
+    def blueTotalMinionsKilled(self, curr_match_timeline):
+        """ Determines the total number of minions the blue team has killed at the 15th minute mark for each timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int]
         """
 
 
         blueTotalMinionsKilled = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalMinions = 0
 
             frames = timeline["frames"]
@@ -961,17 +937,17 @@ class MatchData:
         return blueTotalMinionsKilled 
 
 
-    def redTotalMinionsKilled(self, match_history_timelines):
-        """ Determines the total number of minions the red team has killed at the 15th minute mark for each timeline in match_history_timelines. 
+    def redTotalMinionsKilled(self, curr_match_timeline):
+        """ Determines the total number of minions the red team has killed at the 15th minute mark for each timeline in curr_match_timeline. 
 
-        :type match_history_timelines: List[dict] 
+        :type curr_match_timeline: List[dict] 
         :rtype: List[int]
         """
 
 
         redTotalMinionsKilled = [] 
 
-        for timeline in match_history_timelines:
+        for timeline in curr_match_timeline:
             totalMinions = 0
 
             frames = timeline["frames"]
@@ -1053,17 +1029,17 @@ class MatchData:
 
         return redExpDiff
 
-    def blueSummonerOnTeam(self, match_history_stats):
+    def blueSummonerOnTeam(self, curr_match_stats):
         """ Determines whether the summoner we're training the model for is on the blue team for each match in match history.
 
-        :type match_history_stats: List[dict] 
+        :type curr_match_stats: List[dict] 
         :rtype: List[int] 
         """
 
 
         onBlueTeam = [] 
 
-        for game in match_history_stats: 
+        for game in curr_match_stats: 
             
             # Returns an array of participants 
             participantIdentities = game["participantIdentities"]
@@ -1106,58 +1082,58 @@ if __name__ == "__main__":
     summoner_name = "Leego671"
     accountId = data.getAccountID(summoner_name) 
 
-    num_matches = 1000
+    num_matches = 100
     match_history = data.getMatchHistory(accountId, num_matches)
     cleaned_match_history = data.cleanMatchHistory(match_history)
 
-    match_history_stats = data.getTotalGameStats(cleaned_match_history)
-    match_history_timelines = data.getTotalGameTimeline(cleaned_match_history)
+    curr_match_stats = data.getTotalGameStats(cleaned_match_history)
+    curr_match_timeline = data.getTotalGameTimeline(cleaned_match_history)
 
-    blueKills = data.blueKills(match_history_timelines)
-    redKills = data.redKills(match_history_timelines) 
+    blueKills = data.blueKills(curr_match_timeline)
+    redKills = data.redKills(curr_match_timeline) 
 
-    blueTotalGold = data.blueTotalGold(match_history_timelines) 
-    redTotalGold = data.redTotalGold(match_history_timelines) 
-    blueTotalExp = data.blueTotalExp(match_history_timelines) 
-    redTotalExp = data.redTotalExp(match_history_timelines) 
+    blueTotalGold = data.blueTotalGold(curr_match_timeline) 
+    redTotalGold = data.redTotalGold(curr_match_timeline) 
+    blueTotalExp = data.blueTotalExp(curr_match_timeline) 
+    redTotalExp = data.redTotalExp(curr_match_timeline) 
 
     blue_data = {
         "gameId": data.getGameIds(cleaned_match_history), 
-        "blueWins": data.blueWins(match_history_stats), 
-        "blueWardsPlaced": data.blueWardsPlaced(match_history_timelines), 
-        "blueWardKills": data.blueWardKills(match_history_timelines),
-        "blueFirstBlood": data.blueFirstBlood(match_history_stats), 
-        "blueKills": data.blueKills(match_history_timelines),
+        "blueWins": data.blueWins(curr_match_stats), 
+        "blueWardsPlaced": data.blueWardsPlaced(curr_match_timeline), 
+        "blueWardKills": data.blueWardKills(curr_match_timeline),
+        "blueFirstBlood": data.blueFirstBlood(curr_match_stats), 
+        "blueKills": data.blueKills(curr_match_timeline),
         "blueDeaths": data.blueDeaths(redKills), 
-        "blueAssists": data.blueAssists(match_history_timelines), 
-        "blueEliteMonsterKills": data.blueEliteMonsterKills(match_history_timelines),
-        "blueDragonKills": data.blueDragonKills(match_history_timelines),
-        "blueHeraldKills": data.blueHeraldKills(match_history_timelines),
-        "blueTowerKills": data.blueTowerKills(match_history_timelines), 
-        "blueTotalGold": data.blueTotalGold(match_history_timelines), 
-        "blueAvgLvl": data.blueAvgLvl(match_history_timelines), 
-        "blueTotalExp": data.blueTotalExp(match_history_timelines),
-        "blueTotalMinionsKilled": data.blueTotalMinionsKilled(match_history_timelines), 
+        "blueAssists": data.blueAssists(curr_match_timeline), 
+        "blueEliteMonsterKills": data.blueEliteMonsterKills(curr_match_timeline),
+        "blueDragonKills": data.blueDragonKills(curr_match_timeline),
+        "blueHeraldKills": data.blueHeraldKills(curr_match_timeline),
+        "blueTowerKills": data.blueTowerKills(curr_match_timeline), 
+        "blueTotalGold": data.blueTotalGold(curr_match_timeline), 
+        "blueAvgLvl": data.blueAvgLvl(curr_match_timeline), 
+        "blueTotalExp": data.blueTotalExp(curr_match_timeline),
+        "blueTotalMinionsKilled": data.blueTotalMinionsKilled(curr_match_timeline), 
         "blueGoldDiff": data.blueGoldDiff(blueTotalGold, redTotalGold),
         "blueExpDiff": data.blueExpDiff(blueTotalExp, redTotalExp)
     } 
 
     red_data = {
-        "redWins": data.redWins(match_history_stats), 
-        "redWardsPlaced": data.redWardsPlaced(match_history_timelines),
-        "redWardKills": data.redWardKills(match_history_timelines), 
-        "redFirstBlood": data.redFirstBlood(match_history_stats), 
-        "redKills": data.redKills(match_history_timelines),
+        "redWins": data.redWins(curr_match_stats), 
+        "redWardsPlaced": data.redWardsPlaced(curr_match_timeline),
+        "redWardKills": data.redWardKills(curr_match_timeline), 
+        "redFirstBlood": data.redFirstBlood(curr_match_stats), 
+        "redKills": data.redKills(curr_match_timeline),
         "redDeaths": data.redDeaths(blueKills),
-        "redAssists": data.redAssists(match_history_timelines),
-        "redEliteMonsterKills": data.redEliteMonsterKills(match_history_timelines),
-        "redDragonKills": data.redDragonKills(match_history_timelines),
-        "redHeraldKills": data.redHeraldKills(match_history_timelines), 
-        "redTowerKills": data.redTowerKills(match_history_timelines), 
-        "redTotalGold": data.redTotalGold(match_history_timelines),
-        "redAvgLvl": data.redAvgLvl(match_history_timelines),
-        "redTotalExp": data.redTotalExp(match_history_timelines),
-        "redTotalMinionsKilled": data.redTotalMinionsKilled(match_history_timelines), 
+        "redAssists": data.redAssists(curr_match_timeline),
+        "redEliteMonsterKills": data.redEliteMonsterKills(curr_match_timeline),
+        "redDragonKills": data.redDragonKills(curr_match_timeline),
+        "redHeraldKills": data.redHeraldKills(curr_match_timeline), 
+        "redTowerKills": data.redTowerKills(curr_match_timeline), 
+        "redTotalGold": data.redTotalGold(curr_match_timeline),
+        "redAvgLvl": data.redAvgLvl(curr_match_timeline),
+        "redTotalExp": data.redTotalExp(curr_match_timeline),
+        "redTotalMinionsKilled": data.redTotalMinionsKilled(curr_match_timeline), 
         "redGoldDiff": data.redGoldDiff(blueTotalGold, redTotalGold), 
         "redExpDiff": data.redExpDiff(blueTotalExp, redTotalExp)
     }
