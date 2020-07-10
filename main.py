@@ -755,94 +755,96 @@ class MatchData:
         return avgLvl 
 
     def redAvgLvl(self, curr_match_timeline):
-         """ 
+        """ 
         Determines the average level of the red team at the 15th minute mark for a given timeline. 
 
         :type curr_match_timeline: Dict
         :rtype: int
-        """ 
+        """
 
-         
+        totalLvl = 0 
+
+        frames = curr_match_timeline["frames"]
+
+        curr_frame = frames[15] 
+        curr_participants = curr_frame["participantFrames"]
+
+        for i in range(1, 11):
+            curr_participant_frame = curr_participants[str(i)]
+            participantId = curr_participant_frame["participantId"]
+            if participantId > 5:
+                totalLvl += curr_participant_frame["level"]
+        
+        avgLvl = totalLvl / 5
+
+        return avgLvl
 
     def blueTotalExp(self, curr_match_timeline):
-        """ Determines the total experience the blue team has at the 15th minute mark for each timeline in curr_match_timeline. 
+        """ Determines the total experience the blue team had at the 15th minute mark for a given timeline. 
 
-
-        :type curr_match_timeline: List[dict]
-        :rtype: List[int]
+        :type curr_match_timeline: Dict
+        :rtype: int
         """
 
+        totalXP = 0 
 
-        blueTotalExp = [] 
+        frames = curr_match_timeline["frames"]
+        curr_frame = frames[15] 
+        curr_participants = curr_frame["participantFrames"]
 
-        for timeline in curr_match_timeline:
-            totalExp = 0 
-
-            frames = timeline["frames"]
-
-            curr_frame = frames[15] 
-            curr_participants = curr_frame["participantFrames"]
-
-            for i in range(1, 6):
-                curr_player = curr_participants[str(i)]
-                totalExp += curr_player["xp"] 
-            
-            blueTotalExp.append(totalExp) 
-
-        return blueTotalExp
+        for i in range(1, 11):
+            curr_participant_frame = curr_participants[str(i)]
+            participantId = curr_participant_frame["participantId"]
+            # Checks that the participant is on the blue team  
+            if participantId < 6:
+                totalXP += curr_participant_frame["xp"]
+        
+        return totalXP 
 
     def redTotalExp(self, curr_match_timeline):
-        """ Determines the total experience the red team has at the 15th minute mark for each timeline in curr_match_timeline. 
+        """ Determines the total experience the red team had at the 15th minute mark for a given timeline. 
 
-
-        :type curr_match_timeline: List[dict]
-        :rtype: List[int]
+        :type curr_match_timeline: Dict
+        :rtype: int
         """
 
+        totalXP = 0 
 
-        redTotalExp = [] 
+        frames = curr_match_timeline["frames"]
+        curr_frame = frames[15] 
+        curr_participants = curr_frame["participantFrames"]
 
-        for timeline in curr_match_timeline:
-            totalExp = 0 
-
-            frames = timeline["frames"]
-
-            curr_frame = frames[15] 
-            curr_participants = curr_frame["participantFrames"]
-
-            for i in range(6, 11):
-                curr_player = curr_participants[str(i)]
-                totalExp += curr_player["xp"] 
-            
-            redTotalExp.append(totalExp) 
-
-        return redTotalExp
+        for i in range(1, 11):
+            curr_participant_frame = curr_participants[str(i)]
+            participantId = curr_participant_frame["participantId"]
+            # Checks that the participant is on the red team 
+            if participantId > 5:
+                totalXP += curr_participant_frame["xp"]
+        
+        return totalXP
     
     def blueTotalMinionsKilled(self, curr_match_timeline):
-        """ Determines the total number of minions the blue team has killed at the 15th minute mark for each timeline in curr_match_timeline. 
+        """ Determines the total number of minions the blue team had killed by the 15th minute mark for a given timeline. 
 
-        :type curr_match_timeline: List[dict] 
-        :rtype: List[int]
+        :type curr_match_timeline: Dict 
+        :rtype: int
         """
 
+        totalMinions = 0
 
-        blueTotalMinionsKilled = [] 
+        frames = curr_match_timeline["frames"]
 
-        for timeline in curr_match_timeline:
-            totalMinions = 0
+        curr_frame = frames[15] 
+        curr_participants = curr_frame["participantFrames"]
 
-            frames = timeline["frames"]
-
-            curr_frame = frames[15] 
-            curr_participants = curr_frame["participantFrames"]
-
-            for i in range(1, 6):
-                curr_player = curr_participants[str(i)]
-                totalMinions += curr_player["minionsKilled"] 
-            
-            blueTotalMinionsKilled.append(totalMinions)
-
-        return blueTotalMinionsKilled 
+        for i in range(1, 11):
+            curr_participant_frame = curr_participants[str(i)]
+            participantId = curr_participant_frame["participantId"]
+            # Checks that the participant is on the blue team 
+            if participantId < 6:
+                totalMinions += curr_participant_frame["minionsKilled"] 
+        
+        return totalMinions 
 
 
     def redTotalMinionsKilled(self, curr_match_timeline):
