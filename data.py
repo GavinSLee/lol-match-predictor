@@ -10,7 +10,7 @@ class MatchData:
         # Change the API endpoint according to your game region. 
         self.api = "https://na1.api.riotgames.com"
         # Generate your personal API key on the Riot Games API website. 
-        self.api_key = "RGAPI-647308a9-56a1-4f45-ae05-ddca8c6c6f45"
+        self.api_key = "RGAPI-d383b5ce-706c-4b6e-be08-a964b6bd75b7"
         
     
     def getAccountID(self, summoner_name):
@@ -892,6 +892,8 @@ if __name__ == "__main__":
 
         match_id = str(curr_match["gameId"])
 
+        df = pd.read_csv('league_data.csv')
+
         print("Begin Index: " + str(beginIndex)) 
         print("Current Game ID: " + match_id + "\n")
         curr_match_stats = data.getGameStats(match_id)
@@ -943,15 +945,15 @@ if __name__ == "__main__":
             "redExpDiff": [data.redExpDiff(curr_match_timeline)]
         }
 
-
         df1 = pd.DataFrame(data = blue_data)
         df2 = pd.DataFrame(data = red_data)
         final_df = pd.concat([df1, df2], axis = 1) 
 
+
         if i == 0: 
-            final_df.to_csv('league_data.csv', mode = 'a', header=True)
+            final_df.to_csv('league_data.csv', mode = 'a', header=True, index=False)
         else:
-            final_df.to_csv('league_data.csv', mode = 'a', header=False)
+            final_df.to_csv('league_data.csv', mode = 'a', header=False, index=False)
 
   
     
