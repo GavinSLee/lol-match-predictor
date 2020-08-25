@@ -117,6 +117,6 @@ Some interesting takeaways:
 
 2. Surprisingly, wards placed down by the 15 minute mark doesn't seem to impact the outcome of a game all that much either. I assume this is because lower elo players don't know how to ward properly, or really just don't ward at all. 
 
-3. The most important things that impact the outcome of a game are kills and dragons (to a certain extent). Kills doesn't particularly surprise me, as players tilt when they get killed, and kills impacts the gold difference. It seems like dragons are rather important, because dragons can be used to snowball the game at later stages, when either team is at soul-point. 
+3. The most important things that impact the outcome of a game are kills and dragons (to a certain extent). Kills doesn't particularly surprise me, as players tilt when they get killed, and kills impact the gold difference. It seems like dragons are rather important, because dragons can be used to snowball the game at later stages, when either team is at soul-point. 
 
 Thanks for reading; if you have any questions, please email me at: gavin_lee@brown.edu. 
