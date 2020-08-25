@@ -84,6 +84,8 @@ As personally expected, some decent correlation with blue winning with variables
 
 ## Model Training and Accuracy 
 
+For training and testing purposes, I split the data into a training set and testing set, where the testing set was about 20% of the data, and training was the majority portion. For each ML model, I used the same training/testing data for each algorithm. 
+
 With our cleaned data, I decided to implement the following 5 ML methods:
 
 <ul>
