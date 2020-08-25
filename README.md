@@ -73,7 +73,7 @@ First, we analyze the correlation between blueKills, blueAssists, blueWardsPlace
  <img src = "https://user-images.githubusercontent.com/46236119/91112490-1ac69380-e638-11ea-85bc-bd1f9765d75a.png" alt = "https://user-images.githubusercontent.com/46236119/91112490-1ac69380-e638-11ea-85bc-bd1f9765d75a.png" />  
 </p>
 
-We can see that we have some pretty good lineararity between these variables. Let's look at which variables are well correlation with a heatmap using seaborn: 
+We can see that we have some pretty good lineararity between these some of these variables. Let's look at which variables are well correlated with a heatmap using seaborn: 
 
 <p align = "center">
  <img src = "https://user-images.githubusercontent.com/46236119/91112659-91639100-e638-11ea-981d-190ae3129a05.png" alt = "https://user-images.githubusercontent.com/46236119/91112659-91639100-e638-11ea-981d-190ae3129a05.png" />  
