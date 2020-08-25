@@ -14,10 +14,10 @@ df_clean = df_clean.drop(cols, axis = 1)
 
 corr_list = df_clean[df_clean.columns[1:]].apply(lambda x: x.corr(df_clean['blueWins']))
 cols = []
-for col in corr_list.index:
-    if (corr_list[col]>0.2 or corr_list[col]<-0.2):
-        cols.append(col)
-df_clean = df_clean[cols]
+# for col in corr_list.index:
+#     if (corr_list[col]>0.2 or corr_list[col]<-0.2):
+#         cols.append(col)
+# df_clean = df_clean[cols]
 
 # Checks the relationship between parameters of blue team features (cleaned)
 # g = sns.PairGrid(data=df_clean, vars=['blueKills', 'blueAssists', 'blueWardsPlaced', 'blueTotalGold'], hue='blueWins', size=3, palette='Set1')
@@ -26,12 +26,12 @@ df_clean = df_clean[cols]
 # g.add_legend()
 
 # Histogram of cleaned data correlation
-df_clean.hist(alpha = 0.7, figsize=(12,10), bins=5)
+# df_clean.hist(alpha = 0.7, figsize=(12,10), bins=5)
 
 
 # Creates a heatmap of the correlation between variables (cleaned)
-# plt.figure(figsize=(16, 12))
-# sns.heatmap(df_clean.corr(), cmap='YlGnBu', annot=True, fmt='.2f', vmin=0)
+plt.figure(figsize=(16, 12))
+sns.heatmap(df_clean.corr(), cmap='YlGnBu', annot=True, fmt='.2f', vmin=0)
 plt.show() 
 
 

@@ -90,3 +90,4 @@ acc_knn = accuracy_score(pred_knn, y_test)
 data_dict = {'Naive Bayes': [acc_nb], 'Decision Tree': [acc_tree], 'Random Forest': [acc_rf], 'Logistic Regression': [acc_lr], 'K-Nearest Neighbors': [acc_knn]}
 df_c = pd.DataFrame.from_dict(data_dict, orient='index', columns=['Accuracy Score'])
 print(df_c)
+
