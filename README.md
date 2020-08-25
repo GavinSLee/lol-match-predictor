@@ -16,6 +16,8 @@ Here's a look at my current League account, which has the username Leego671. As 
 
 I'm not the best player, and I would say that my rank is fairly indicative of my skill level. In other words, I would say my skill is around high silver/low gold, maybe high gold on a good day. 
 
+We'll be grabbing data from my account, Leego671, to train our several ML models and see what kind of accuracies we can get. :) 
+
 ## Grabbing the Data
 
 
