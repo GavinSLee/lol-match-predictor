@@ -1,6 +1,6 @@
 # League of Legends Match Predictor
 
-I've been playing League of Legends (LoL) for the last 8 years; also, I took Brown's Machine Learning course (CSCI 1420) my sophomore spring. I decided that it would be a little fun to see if I could combine what I had learned in ML with some game stats that I've accumulated over the years.
+I've been playing League of Legends (LoL) for the last 8 years. Recently, I took Brown's Machine Learning course (CSCI 1420) my sophomore spring. I decided that it would be a little fun to see if I could combine what I had learned in ML with some game stats that I've accumulated over the years.
 
 Thus, I wanted to answer the question: Given a LoL's game stats at the 15 minute mark, can we determine which side will win? 
 
