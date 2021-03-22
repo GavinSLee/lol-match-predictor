@@ -63,7 +63,7 @@ From each match, we gathered the following statistics at the 15 minute mark:
 
 These statistics were gathered for both the blue and the red team. 
 ## Cleaning the Data
-Notice that we grabbed a ton of statistics for both the blueside and the red side. Some of the statistics are a little repetitive/not super relevant to what we're trying to achieve, at least from personal experience. I figured it would be better if we grabbed more data than necessary, as it's always easier to remove features than it is to make GET requests to grab more data. 
+Notice that we grabbed a ton of statistics for both the blue side and the red side. Some of the statistics are a little repetitive/not super relevant to what we're trying to achieve, at least from personal experience. I figured it would be better if we grabbed more data than necessary, as it's always easier to remove features than it is to make GET requests to grab more data. 
 
 Thus, we use Pandas, Numpy, SKLearn, and Seaborn to analyze our data, remove unecessary features, and create machine learning models. Also, I reframed my question to answer: "Can we predict whether the blue team will win at the 15 minute mark?" As league is a zero-sum game, and so if the blue team wins, then the red team loses, and vice-versa. 
 
